@@ -1,0 +1,17 @@
+{
+  "name": "web322-app",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Mohammad Reazaul Karim",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bootstrap": "5.3",
+    "express": "^4.21.1",
+    "jQuery": "^1.7.4"
+  }
+}
