@@ -17,7 +17,10 @@ GitHub Repository URL: https://github.com/mrkarim6/web322-app.git
 const express = require('express')
 const app = express()
 const path = require('path')
-const port = 8080
+
+//const port = 8080
+
+
 app.use(express.static('public')); 
 
 const storeService = require('./store-service.js');
@@ -74,3 +77,4 @@ app.use((req, res) => {
 });
 
 
+module.exports = app;
