@@ -29,9 +29,6 @@ const storeService = require('./store-service.js');
 
 storeService.initialize().then(() => {
     console.log('Data initialization successful!');
-    app.listen(port, () => {
-        console.log(`Server is running on http://localhost:${port}`);
-    });
 }).catch(err => {
     console.error('Failed to initialize data:', err);
 });
