@@ -6,8 +6,8 @@ No part of this assignment has been copied manually or electronically from any o
 Name: Mohammad Reazaul Karim
 Student ID: 178417234
 Date: 12 Oct 2024
-Vercel Web App URL: 
-GitHub Repository URL: 
+Vercel Web App URL: web322-app-roan.vercel.app
+GitHub Repository URL: https://github.com/mrkarim6/web322-app.git
 
 ********************************************************************************/ 
 
