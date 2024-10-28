@@ -8,11 +8,14 @@
   },
   "author": "Mohammad Reazaul Karim",
   "license": "ISC",
-  "description": "",
+  "description": "��#\u0000 \u0000w\u0000e\u0000b\u00003\u00002\u00002\u0000\r\u0000 \u0000#\u0000 \u0000w\u0000e\u0000b\u00003\u00002\u00002\u0000-\u0000a\u0000p\u0000p\u0000\r\u0000 \u0000",
   "dependencies": {
     "bootstrap": "5.3",
     "express": "^4.21.1",
     "jQuery": "^1.7.4",
-    "submission": "^2.0.0"
-  }
+    "submission": "^2.0.0",
+    "vercel": "^37.12.1"
+  },
+  "devDependencies": {},
+  "keywords": []
 }
