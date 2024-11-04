@@ -67,5 +67,61 @@ module.exports = {
                 reject('no results returned');
             }
         });
+    },
+    addItem(itemData) {
+        return new Promise((resolve, reject) => {
+            // Set 'published' to false if undefined, else set to true
+            if (itemData.published === undefined) {
+                itemData.published = false;
+            } else {
+                itemData.published = true;
+            }
+    
+            // Set the 'id' property to the length of 'items' array plus one
+            itemData.id = items.length + 1;
+    
+            // Push the updated itemData onto the 'items' array
+            items.push(itemData);
+    
+            // Resolve the promise with the updated itemData
+            resolve(itemData);
+        });
+    },
+    getItemsByCategory(category) {
+        return new Promise((resolve, reject) => {
+            const filteredItems = items.filter(item => item.category === parseInt(category, 10));
+            
+            if (filteredItems.length > 0) {
+                resolve(filteredItems);
+            } else {
+                reject("no results returned");
+            }
+        });
+    },
+    getItemsByMinDate(minDateStr) {
+        return new Promise((resolve, reject) => {
+            const minDate = new Date(minDateStr);
+            const filteredItems = items.filter(item => new Date(item.postDate) >= minDate);
+    
+            if (filteredItems.length > 0) {
+                resolve(filteredItems);
+            } else {
+                reject("no results returned");
+            }
+        });
+    },
+    getItemById(id) {
+        return new Promise((resolve, reject) => {
+            const foundItem = items.find(item => item.id === parseInt(id, 10));
+    
+            if (foundItem) {
+                resolve(foundItem);
+            } else {
+                reject("no result returned");
+            }
+        });
     }
+    
+    
+    
 };
