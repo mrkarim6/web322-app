@@ -86,7 +86,7 @@ app.use(function(req,res,next){
 
 // Routers
 app.get('/', (req, res) => {
-    res.render("shop");
+    res.redirect("shop");
 })
 
 
