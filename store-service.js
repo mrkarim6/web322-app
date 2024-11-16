@@ -14,13 +14,14 @@ module.exports = {
                     reject('unable to read file items.json');
                     return;
                 }
+				
                 try {
                     items = JSON.parse(data); // Parse the JSON data into an array of objects
                 } catch (e) {
                     reject('unable to parse items.json');
                     return;
                 }
-
+			});
                 // Once items are loaded, read categories.json file
                 fs.readFile('./data/categories.json', 'utf8', (err, data) => {
                     if (err) {
@@ -37,7 +38,7 @@ module.exports = {
                     // Both files read successfully, resolve the promise
                     resolve();
                 });
-            });
+          
         });
     },
     getAllItems: function() {
@@ -58,6 +59,27 @@ module.exports = {
                 reject('no results returned');
             }
         });
+    }, 
+    getPublishedItemsByCategory: function(category) {
+
+        return new Promise((resolve, reject) => {
+            const filteredItems = items.filter(item => item.category === parseInt(category, 10) && item.published === true );
+            
+            if (filteredItems.length > 0) {
+                resolve(filteredItems);
+            } else {
+                reject("no results returned");
+            }
+        });
+
+        /*return new Promise((resolve, reject) => {
+            const publishedItemsByCategory = items.filter(item => item.published === true && item.category === category);
+            if (publishedItemsByCategory.length > 0) {
+                resolve(publishedItemsByCategory);
+            } else {
+                reject('no results returned for the specified category');
+            }
+        });*/
     },
     getCategories: function() {
         return new Promise((resolve, reject) => {

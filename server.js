@@ -1,15 +1,18 @@
 /*********************************************************************************
-WEB322 – Assignment 02
-I declare that this assignment is my own work in accordance with Seneca Academic Policy.  
-No part of this assignment has been copied manually or electronically from any other source (including 3rd party web sites) or distributed to other students.
-
-Name: Mohammad Reazaul Karim
-Student ID: 178417234
-Date: 12 Oct 2024
-Vercel Web App URL: web322-app-roan.vercel.app
-GitHub Repository URL: https://github.com/mrkarim6/web322-app.git
-
+*  WEB322 – Assignment 04
+*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part 
+*  of this assignment has been copied manually or electronically from any other source 
+*  (including 3rd party web sites) or distributed to other students.
+* 
+*  Name: Mohammad Reazaul Karim Student ID: 178417234 Date: 15 Nov 2024
+*
+*  Vercel Web App URL: web322-app-roan.vercel.app
+* 
+*  GitHub Repository URL: https://github.com/mrkarim6/web322-app.git
+*
 ********************************************************************************/ 
+
+
 
 const express = require('express')
 const app = express()
@@ -19,6 +22,8 @@ const path = require('path')
 const multer = require("multer");
 const cloudinary = require('cloudinary').v2
 const streamifier = require('streamifier')
+const exphbs = require("express-handlebars");
+const stripJs = require('strip-js');
 
 cloudinary.config({
     cloud_name: 'dofgs98gt',
@@ -28,10 +33,37 @@ cloudinary.config({
 });
 
 const upload = multer(); 
-
 app.use(express.static('public')); 
-
 const storeService = require('./store-service.js');
+
+
+app.engine(".hbs", exphbs.engine({
+     extname: ".hbs",    
+    helpers: {
+        navLink: function (url, options) {
+            return '<li class="nav-item"><a ' +
+                (url == app.locals.activeRoute ? 'class="nav-link active" ' : 'class="nav-link" ') +
+                'href="' + url + '">' +
+                options.fn(this) +
+                '</a></li>';
+        }
+    },
+    equal: function (lvalue, rvalue, options) {
+        if (arguments.length < 3)
+            throw new Error("Handlebars Helper equal needs 2 parameters");
+        if (lvalue != rvalue) {
+            return options.inverse(this);
+        } else {
+            return options.fn(this);
+        }
+    },
+    safeHTML: function(context){
+        return stripJs(context);
+    }
+    
+    
+}));
+app.set("view engine", ".hbs");
 
 //////////////
 
@@ -44,24 +76,113 @@ storeService.initialize().then(() => {
     console.error('Failed to initialize data:', err);
 });
 
+// Menu Hi-Lighter
+app.use(function(req,res,next){
+    let route = req.path.substring(1);
+    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
+    app.locals.viewingCategory = req.query.category;
+    next();
+});
 
+// Routers
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname,"/views/about.html"))
+    res.render("shop");
 })
 
 
 app.get('/about', (req, res) => {
-    res.sendFile(path.join(__dirname,"/views/about.html"))
+    res.render("about");
 })
 
+app.get("/shop/:id", async (req, res) => {
+    // Declare an object to store properties for the view
+    let viewData = {};
+  
+    try {
+      // declare empty array to hold "item" objects
+      let items = [];
+  
+      // if there's a "category" query, filter the returned items by category
+      if (req.query.category) {
+        // Obtain the published "item" by category
+        console.log(req.query.category);
+        items = await storeService.getPublishedItemsByCategory(req.query.category);
+      } else {
+        // Obtain the published "items"
+        items = await storeService.getPublishedItems();
+      }
+  
+      // sort the published items by itemDate
+      items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
+  
+      // get the latest item from the front of the list (element 0)
+      let item = items[0];
+  
+      // store the "items" and "item" data in the viewData object (to be passed to the view)
+      viewData.items = items;
+      viewData.item = item;
+    } catch (err) {
+      viewData.message = "no results";
+    }
+  
+    try {
+      // Obtain the full list of "categories"
+      let categories = await storeService.getCategories();
+  
+      // store the "categories" data in the viewData object (to be passed to the view)
+      viewData.categories = categories;
+    } catch (err) {
+      viewData.categoriesMessage = "no results";
+    }
 
-app.get('/shop', (req, res) => {
-    storeService.getPublishedItems().then(items => {
-        res.json(items);
-    }).catch(err => {
-        res.status(500).send(err);
-    });
-})
+    res.render("shop", { data: viewData });
+  });
+
+
+
+app.get("/shop", async (req, res) => {
+    // Declare an object to store properties for the view
+    let viewData = {};
+  
+    try {
+      // declare empty array to hold "item" objects
+      let items = [];
+  
+      // if there's a "category" query, filter the returned items by category
+      if (req.query.category) {
+        // Obtain the published "item" by category
+        console.log(req.query.category);
+        items = await storeService.getPublishedItemsByCategory(req.query.category);
+      } else {
+        // Obtain the published "items"
+        items = await storeService.getPublishedItems();
+      }
+  
+      // sort the published items by itemDate
+      items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
+  
+      // get the latest item from the front of the list (element 0)
+      let item = items[0];
+  
+      // store the "items" and "item" data in the viewData object (to be passed to the view)
+      viewData.items = items;
+      viewData.item = item;
+    } catch (err) {
+      viewData.message = "no results";
+    }
+  
+    try {
+      // Obtain the full list of "categories"
+      let categories = await storeService.getCategories();
+  
+      // store the "categories" data in the viewData object (to be passed to the view)
+      viewData.categories = categories;
+    } catch (err) {
+      viewData.categoriesMessage = "no results";
+    }
+
+    res.render("shop", { data: viewData });
+  });
 
 app.get('/items', (req, res) => {
 
@@ -69,18 +190,18 @@ app.get('/items', (req, res) => {
 
     if (category) {
         storeService.getItemsByCategory(category)
-            .then(filteredItems => res.json(filteredItems))
+            .then(filteredItems => res.render("items", {items: filteredItems}))
             .catch(error => res.status(500).send("Error fetching items by category: " + error));
     } else if (minDate) {
         storeService.getItemsByMinDate(minDate)
-            .then(filteredItems => res.json(filteredItems))
+            .then(filteredItems => res.render("items", {items: filteredItems}))
             .catch(error => res.status(500).send("Error fetching items by date: " + error));
     } else {
         storeService.getAllItems()
-            .then(allItems => res.json(allItems))
+            .then(allItems => res.render("items", {items: allItems}))
+         //   .then(allItems => res.json(allItems))
             .catch(error => res.status(500).send("Error fetching all items: " + error));
     }
-
 })
 
 
@@ -102,7 +223,7 @@ app.get('/item/:value', async (req, res) => {
 
 
 app.get('/items/add', (req, res) => {
-    res.sendFile(path.join(__dirname,"/views/addItem.html"))
+    res.render("addItem");
 })
 
 app.post('/items/add', upload.single('featureImage'), async (req, res) => {
@@ -140,9 +261,12 @@ app.post('/items/add', upload.single('featureImage'), async (req, res) => {
     function processItem(imageUrl){
         req.body.featureImage = imageUrl;
 
-        const itemData = req.body;
+        const currentDate = new Date();
+        req.body.itemDte = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
 
-        console.log("I M HERE");
+         const itemData = req.body;
+
+        //console.log("I M HERE");
 
         storeService.addItem(itemData)
             .then(newItem => {
@@ -158,15 +282,15 @@ app.post('/items/add', upload.single('featureImage'), async (req, res) => {
 
 
 app.get('/categories', (req, res) => {
-    storeService.getCategories().then(categories => {
-        res.json(categories);
-    }).catch(err => {
+    storeService.getCategories()
+    .then(categories => res.render("categories", {categories: categories}))
+    .catch(err => {
         res.status(500).send(err);
     });
 })
  
 app.use((req, res) => {
-    res.status(404).send('<center style="font-size:5000%">404</center>');
+    res.status(404).render("404");
 });
 
 
