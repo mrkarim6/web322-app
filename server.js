@@ -11,19 +11,16 @@
 *  GitHub Repository URL: https://github.com/mrkarim6/web322-app.git
 *
 ********************************************************************************/ 
-
-
-
-const express = require('express')
-const app = express()
-const path = require('path')
-//const port = 8080
-
-const multer = require("multer");
-const cloudinary = require('cloudinary').v2
-const streamifier = require('streamifier')
-const exphbs = require("express-handlebars");
+const express = require('express');
+const app = express();
+const path = require('path');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
+const exphbs = require('express-handlebars');
 const stripJs = require('strip-js');
+const storeService = require('./store-service');
+
 
 cloudinary.config({
     cloud_name: 'dofgs98gt',
@@ -33,9 +30,7 @@ cloudinary.config({
 });
 
 const upload = multer(); 
-app.use(express.static('public')); 
-const storeService = require('./store-service.js');
-
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.engine(".hbs", exphbs.engine({
      extname: ".hbs",    
@@ -63,18 +58,9 @@ app.engine(".hbs", exphbs.engine({
     
     
 }));
+
+app.set('views',path.join(__dirname,'views'))
 app.set("view engine", ".hbs");
-
-//////////////
-
-storeService.initialize().then(() => {
-    console.log('Data initialization successful!');
-    app.listen(port, () => {
-        console.log(`Server is running on http://localhost:${port}`);
-    });
-}).catch(err => {
-    console.error('Failed to initialize data:', err);
-});
 
 // Menu Hi-Lighter
 app.use(function(req,res,next){
@@ -293,5 +279,15 @@ app.use((req, res) => {
     res.status(404).render("404");
 });
 
+//////////////
+
+(async () => {
+  try {
+    await storeService.initialize();
+    console.log('Data initialization successful!');
+  } catch (err) {
+    console.error('Failed to initialize data:', err);
+  }
+})();
 
 module.exports = app;

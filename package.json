@@ -22,5 +22,6 @@
     "submission": "^2.0.0",
     "vercel": "^37.12.1"
   },
-  "keywords": []
+  "keywords": [],
+  "devDependencies": {}
 }
