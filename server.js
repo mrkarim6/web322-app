@@ -12,28 +12,29 @@
 *
 ********************************************************************************/ 
 const express = require('express');
-const app = express();
 const path = require('path');
-const multer = require('multer');
+const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
-const exphbs = require('express-handlebars');
+const exphbs = require("express-handlebars");
 const stripJs = require('strip-js');
-const storeService = require('./store-service');
 
+const app = express();
+const upload = multer();
 
+const storeService = require('./store-service.js');
+
+// Cloudinary Configuration
 cloudinary.config({
     cloud_name: 'dofgs98gt',
     api_key: '381269763699752',
     api_secret: 'Lahne34xDn7AZd1xYPBLqgONUfc',
-    secure: true
+    secure: true,
 });
 
-const upload = multer(); 
-app.use(express.static(path.join(__dirname, '../public')));
-
+// Set Handlebars as View Engine
 app.engine(".hbs", exphbs.engine({
-     extname: ".hbs",    
+    extname: ".hbs",
     helpers: {
         navLink: function (url, options) {
             return '<li class="nav-item"><a ' +
@@ -41,35 +42,35 @@ app.engine(".hbs", exphbs.engine({
                 'href="' + url + '">' +
                 options.fn(this) +
                 '</a></li>';
+        },
+        equal: function (lvalue, rvalue, options) {
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
+        },
+        safeHTML: function (context) {
+            return stripJs(context);
         }
     },
-    equal: function (lvalue, rvalue, options) {
-        if (arguments.length < 3)
-            throw new Error("Handlebars Helper equal needs 2 parameters");
-        if (lvalue != rvalue) {
-            return options.inverse(this);
-        } else {
-            return options.fn(this);
-        }
-    },
-    safeHTML: function(context){
-        return stripJs(context);
-    }
-    
-    
 }));
 
-app.set('views',path.join(__dirname,'views'))
+app.set('views', path.join(__dirname, 'views'));
 app.set("view engine", ".hbs");
 
-// Menu Hi-Lighter
-app.use(function(req,res,next){
+// Static Assets
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Middleware for Active Route
+app.use((req, res, next) => {
     let route = req.path.substring(1);
     app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
     app.locals.viewingCategory = req.query.category;
     next();
 });
-
 // Routers
 app.get('/', (req, res) => {
     res.redirect("shop");
@@ -264,9 +265,6 @@ app.post('/items/add', upload.single('featureImage'), async (req, res) => {
     }
 })
 
- 
-
-
 app.get('/categories', (req, res) => {
     storeService.getCategories()
     .then(categories => res.render("categories", {categories: categories}))
@@ -275,19 +273,9 @@ app.get('/categories', (req, res) => {
     });
 })
  
-app.use((req, res) => {
-    res.status(404).render("404");
-});
-
-//////////////
-
-(async () => {
-  try {
-    await storeService.initialize();
-    console.log('Data initialization successful!');
-  } catch (err) {
-    console.error('Failed to initialize data:', err);
-  }
-})();
+// Initialize Data and Export the Handler
+storeService.initialize()
+    .then(() => console.log('Data initialization successful!'))
+    .catch(err => console.error('Failed to initialize data:', err));
 
 module.exports = app;
