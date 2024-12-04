@@ -175,18 +175,47 @@ app.get('/items', (req, res) => {
 
     const { category, minDate } = req.query;
 
+
     if (category) {
         storeService.getItemsByCategory(category)
-            .then(filteredItems => res.render("items", {items: filteredItems}))
+            .then(
+              (filteredItems) => {
+                if(filteredItems.length > 0){
+                  res.render("items", {items: filteredItems})
+                }
+                else{
+                  res.render("items",{ message: "no results" });
+                }
+              }
+            )
             .catch(error => res.status(500).send("Error fetching items by category: " + error));
     } else if (minDate) {
         storeService.getItemsByMinDate(minDate)
-            .then(filteredItems => res.render("items", {items: filteredItems}))
+            .then(
+              (filteredItems) => {
+                if(filteredItems.length > 0){
+                  res.render("items", {items: filteredItems})
+                }
+                else{
+                  res.render("items",{ message: "no results" });
+                }
+              }
+            
+            )
             .catch(error => res.status(500).send("Error fetching items by date: " + error));
     } else {
         storeService.getAllItems()
-            .then(allItems => res.render("items", {items: allItems}))
-         //   .then(allItems => res.json(allItems))
+            .then(
+              (allItems) => {
+                if(allItems.length > 0){
+                  res.render("items", {items: allItems})
+                }
+                else{
+                  res.render("items",{ message: "no results" });
+                }
+              }
+            
+            )
             .catch(error => res.status(500).send("Error fetching all items: " + error));
     }
 })
@@ -210,8 +239,67 @@ app.get('/item/:value', async (req, res) => {
 
 
 app.get('/items/add', (req, res) => {
-    res.render("addItem");
+ 
+      storeService.getCategories()
+          .then(filteredItems => res.render("addItem", {categories: filteredItems}))
+          .catch(error => res.status(500).send("Error fetching items by category: " + error));
+    
+    //res.render("addItem");
 })
+
+
+
+app.post('/categories/add', upload.single('featureImage'), async (req, res) => {
+  
+
+       const itemData = req.body;
+
+
+      storeService.addCategory(itemData)
+          .then(newItem => {
+              res.redirect('/categories');
+          })
+          .catch(error => {
+              res.status(500).send("Error adding item: " + error);
+          });
+  
+})
+
+
+app.get('/categories/add', (req, res) => {
+ 
+      storeService.getCategories()
+          .then(filteredItems => res.render("addcategory", {categories: filteredItems}))
+          .catch(error => res.status(500).send("Error fetching items by category: " + error));
+})
+
+app.get('/categories/delete/:id', (req, res) => {
+  const categoryId = req.params.id; // Extract category ID from the URL
+
+  storeService.deleteCategoryById(categoryId)
+      .then(() => {
+          res.redirect('/categories'); // Redirect back to the categories list after successful deletion
+      })
+      .catch((error) => {
+          console.error('Error deleting category:', error);
+          res.status(500).send('Unable to delete category');
+      });
+});
+
+app.get('/items/delete/:id', (req, res) => {
+  const id = req.params.id; // Extract category ID from the URL
+
+  storeService.deleteItemById(id)
+      .then(() => {
+          res.redirect('/items'); // Redirect back to the categories list after successful deletion
+      })
+      .catch((error) => {
+          console.error('Error deleting item:', error);
+          res.status(500).send('Unable to delete item');
+      });
+});
+
+
 
 app.post('/items/add', upload.single('featureImage'), async (req, res) => {
     if(req.file){
@@ -267,7 +355,18 @@ app.post('/items/add', upload.single('featureImage'), async (req, res) => {
 
 app.get('/categories', (req, res) => {
     storeService.getCategories()
-    .then(categories => res.render("categories", {categories: categories}))
+    .then(
+      (categories) => {
+        if(categories.length > 0){
+        
+          res.render("categories", {categories: categories})
+        }
+        else{
+          res.render("categories",{ message: "no results" });
+        }
+      }
+    
+    )
     .catch(err => {
         res.status(500).send(err);
     });
