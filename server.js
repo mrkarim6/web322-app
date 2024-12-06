@@ -1,10 +1,10 @@
 /*********************************************************************************
-*  WEB322 – Assignment 04
+*  WEB322 – Assignment 05
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part 
 *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
-*  Name: Mohammad Reazaul Karim Student ID: 178417234 Date: 15 Nov 2024
+*  Name: Mohammad Reazaul Karim Student ID: 178417234 Date: 4 Dec 2024
 *
 *  Vercel Web App URL: web322-app-roan.vercel.app
 * 
@@ -142,7 +142,19 @@ app.get("/shop", async (req, res) => {
         items = await storeService.getPublishedItemsByCategory(req.query.category);
       } else {
         // Obtain the published "items"
-        items = await storeService.getPublishedItems();
+       
+        await storeService.getPublishedItems()
+            .then(
+              (allItems) => {
+                if(allItems.length > 0){
+                  items = allItems;
+                 
+                }
+                
+              }
+            
+            )
+            .catch(error => res.status(500).send("Error fetching all items: " + error));
       }
   
       // sort the published items by itemDate

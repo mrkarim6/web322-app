@@ -92,7 +92,7 @@ module.exports = {
                     if (items.length > 0) {
                         resolve(items); // Resolve with the data if items exist
                     } else {
-                        reject('no results returned - 1'); // Reject if no items are found
+                        resolve([]);; // Reject if no items are found
                     }
                 })
                 .catch((error) => {
@@ -102,21 +102,14 @@ module.exports = {
         });
     },
     getPublishedItems: function(data) {
-        return new Promise((resolve, reject) => {
-            reject();
-            })
-    }, 
-    getPublishedItemsByCategory: function(category) {
 
         return new Promise((resolve, reject) => {
-            Item.findAll({
-                where: { published: true } 
-            })
+            Item.findAll({ where: { published: true } })
                 .then((items) => {
                     if (items.length > 0) {
                         resolve(items); // Resolve with the data if items exist
                     } else {
-                        reject('no results returned - 1'); // Reject if no items are found
+                        resolve([]);; // Reject if no items are found
                     }
                 })
                 .catch((error) => {
@@ -124,15 +117,25 @@ module.exports = {
                     reject('no results returned 2'); // Reject with a meaningful message in case of an error
                 });
         });
+    }, 
+    getPublishedItemsByCategory: function(category) {
 
-        /*return new Promise((resolve, reject) => {
-            const publishedItemsByCategory = items.filter(item => item.published === true && item.category === category);
-            if (publishedItemsByCategory.length > 0) {
-                resolve(publishedItemsByCategory);
-            } else {
-                reject('no results returned for the specified category');
-            }
-        });*/
+        return new Promise((resolve, reject) => {
+            Item.findAll({
+                where: { category: category } 
+            })
+                .then((items) => {
+                    if (items.length > 0) {
+                        resolve(items); // Resolve with the data if items exist
+                    } else {
+                        resolve([]); // Reject if no items are found
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching items:', error);
+                    reject('no results returned 2'); // Reject with a meaningful message in case of an error
+                });
+        });
     },
     getCategories: function() {
         return new Promise((resolve, reject) => {
@@ -142,7 +145,7 @@ module.exports = {
                     if (rows.length > 0) {
                         resolve(rows); // Resolve with the data if items exist
                     } else {
-                        reject('no results returned - 1'); // Reject if no items are found
+                        resolve([]); // Reject if no items are found
                     }
                 })
                 .catch((error) => {
