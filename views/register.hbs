@@ -1,0 +1,36 @@
+<div class="container" style="padding-top: 60px;">
+    <h2>Register</h2>
+
+    {{#if errorMessage}}
+    <div class="alert alert-danger">
+        <strong>Error:</strong> {{errorMessage}}
+    </div>
+    {{/if}}
+
+    {{#unless successMessage}}
+    <form action="/register" method="post">
+        <div class="mb-3">
+            <label for="userName" class="form-label">User Name</label>
+            <input type="text" class="form-control" name="userName" id="userName" placeholder="User Name" required value="{{userName}}">
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+        </div>
+        <div class="mb-3">
+            <label for="password2" class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" name="password2" id="password2" placeholder="Confirm Password" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" class="form-control" name="email" id="email" placeholder="Email Address" required value="{{email}}">
+        </div>
+        <button type="submit" class="btn btn-success">Register</button>
+    </form>
+    {{else}}
+    <div class="alert alert-success">
+        <strong>Success:</strong> {{successMessage}}
+    </div>
+    <a class="btn btn-success pull-right" href="/login">&nbsp;&nbsp;&nbsp;Proceed to Log in&nbsp;&nbsp;&nbsp;</a><br /><br /><br />
+    {{/unless}}
+</div>
